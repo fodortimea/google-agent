@@ -1,7 +1,7 @@
 import { supabase } from "../db/supabaseClient";
 import { genAI } from "../llm/client";
 import { embed } from "../llm/embedding";
-import { planSchema, ToolPlan } from "../types";
+import { isFunctionCallPlan, planSchema, ToolPlan } from "../types";
 
 // adjust these knobs as you like
 const MAX_FEEDBACK = 5;
@@ -53,10 +53,11 @@ export async function reflectPlanWithFeedback(
 You are an agent that just planned to run:
 
   Action: ${originalPlan.action}
-  Params: ${JSON.stringify((originalPlan as any).params ?? {})}
+  Params: ${JSON.stringify(
+    isFunctionCallPlan(originalPlan) ? originalPlan.params : {}
+  )}
 
 A user said: "${userPrompt}".
-
 Here are similar past interactions and their feedback:
 ${feedbackContext}
 

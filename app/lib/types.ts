@@ -145,3 +145,7 @@ export const planSchema: Schema=  {
       "reasoning",
     ],
   };
+
+  export function isFunctionCallPlan(plan: ToolPlan): plan is FunctionCallPlan {
+    return plan.action !== 'clarify' && plan.action !== 'searchInternet';
+  }
