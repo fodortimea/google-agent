@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
     const interactionId = inserted.id;
 
-    // 5. optional: execute the tool if it’s a real action
+    // 5. execute the tool if it’s a real action
     history.push({
       role: "user",
       parts: [

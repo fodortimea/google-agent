@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+import { gmail_v1, google, people_v1 } from "googleapis";
 import { ensureAuthenticated } from "../googleAuth";
 
 export const getGmailClient = async () => {
@@ -59,12 +59,14 @@ export const fetchEmailDetails = async (messageId: string) => {
     return null;
   }
 };
+type GmailMessage = gmail_v1.Schema$Message;
+
 /**
  * Fetches and processes a list of emails based on a given query.
  * @param {any} messages - The  mail API client's result messages.
  * @returns {Promise<Array>} An array of emails with details like subject, sender, and body.
  */
-export const fetchEmailList = async (messages: any) => {
+export const fetchEmailList = async (messages: GmailMessage[] | undefined) => {
   try {
     if (!messages) {
       console.log("No emails found");
@@ -91,7 +93,7 @@ export const normalizeText = (text: string) =>
     .toLowerCase();
 
 export const findMatchingContact = (
-  contacts: any[],
+  contacts: people_v1.Schema$Person[],
   normalizedSearch: string
 ): string | null => {
   const nameParts = normalizedSearch.split(/\s+/); // Split by spaces

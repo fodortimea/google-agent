@@ -18,7 +18,7 @@ export async function runWithFunctionCalling(
 
   switch (plan.action) {
     case "clarify":
-      return `🤔 I need more information: ${plan.missingInfo}\n\nReason: ${plan.reasoning}`;
+      return `I need more information: ${plan.missingInfo}\n\nReason: ${plan.reasoning}`;
 
     case "searchInternet": {
       // At the moment google only support one tool at a time. For this reason we need to split grounding and function call
@@ -61,9 +61,13 @@ export async function runWithFunctionCalling(
           model: "gemini-2.0-flash",
           contents: `You were given this propmt: ${
             history[0]
-          } and you have found these answers ${JSON.stringify(
+          } and you have found these results ${JSON.stringify(
             data
-          )}. Answer to the propmt in a professional, friendly manner summarizing the result if it is necessary but making sure your answer does not lack anything relevant from the result you have been provided with.`,
+          )}. Now, respond to the user's query in a professional and friendly tone, like an assistant. 
+          Focus only on the meaningful, user-relevant information. 
+          Summarize clearly if needed, without omitting important facts. 
+          Do NOT include any sensitive data, such as internal IDs, email addresses, system labels, or metadata unless it is directly relevant and necessary for understanding the user's question. 
+          Only share what a typical end-user would find helpful or informative. Present the information in a concise, assistant-like tone.`,
         });
         return finalResponse.text ?? "";
       }
