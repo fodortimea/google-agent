@@ -6,7 +6,7 @@ import { SendButton } from "./SendButton";
 type Props = {
   message: string;
   setMessage: (value: string) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleSubmit: (e?: React.FormEvent<HTMLFormElement>) => void;
   handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   handleDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   images: { id: string; file: File }[];
@@ -47,8 +47,14 @@ const ChatInputForm = ({
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message or drop files here..."
-        className="w-full resize-none bg-transparent border-none focus:outline-none max-h-32 overflow-y-auto"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit();
+          }
+        }}
+        placeholder="Type your message or drop images here..."
+        className="w-full resize-none bg-transparent border-none focus:outline-none max-h-32 overflow-y-auto text-primary"
       />
 
       <div className="mt-2 flex gap-2 flex-wrap">
