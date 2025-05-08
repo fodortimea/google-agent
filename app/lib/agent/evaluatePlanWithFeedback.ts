@@ -1,19 +1,14 @@
 import { supabase } from "../db/supabaseClient";
 import { genAI } from "../llm/client";
 import { embed } from "../llm/embedding";
-import { isFunctionCallPlan, planSchema, ToolPlan } from "../types";
+import {
+  FeedbackEntry,
+  isFunctionCallPlan,
+  planSchema,
+  ToolPlan,
+} from "../types";
 
-// adjust these knobs as you like
 const MAX_FEEDBACK = 5;
-
-/** A single feedback item we’ll retrieve */
-type FeedbackEntry = {
-  action: string;
-  rating: number;
-  comment: string;
-  summary: string;
-  similarity: number;
-};
 
 /**
  * RAG + LLM reflection: given the userPrompt and the agent's original plan,
@@ -22,7 +17,7 @@ type FeedbackEntry = {
 export async function reflectPlanWithFeedback(
   userPrompt: string,
   originalPlan: ToolPlan
-): Promise<ToolPlan> {
+): Promise<{ plan: ToolPlan; feedbacks: FeedbackEntry[] }> {
   // 1️⃣ embed the prompt
   const qVec = await embed(userPrompt);
 
@@ -33,7 +28,7 @@ export async function reflectPlanWithFeedback(
   });
 
   if (error || !data?.length || originalPlan.action === "clarify") {
-    return originalPlan; // nothing to reflect on
+    return { plan: originalPlan, feedbacks: [] }; // nothing to reflect on
   }
 
   const feedbacks = data as FeedbackEntry[];
@@ -91,7 +86,7 @@ Return valid JSON matching the schema:
   if (parsedPlan.action !== originalPlan.action) {
     reflectedPlan = await chooseBestPlan(userPrompt, originalPlan, parsedPlan);
   }
-  return reflectedPlan;
+  return { plan: reflectedPlan, feedbacks };
 }
 
 /**

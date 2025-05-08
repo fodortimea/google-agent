@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData();
-    //todo summarize history if there are more than 5 interactions
+    //todo summarize history if there are more than 5 interactions?
     const history: Content[] = JSON.parse(
       (formData.get("messages") as string) || "[]"
     );
@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
       (formData.get("message") as string) || "{}"
     );
     const userCommand = await describeInlineData(lastUserMessage.parts);
-    // lastUserMessage.parts?.[0]?.text?.trim() ?? "";
 
     history.push({
       role: "user",
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
     history.push(lastUserMessage);
     // 1. let the model plan
     const originalPlan = await planToolCallWithReasoning(userCommand, history);
-    const plan = await reflectPlanWithFeedback(userCommand, originalPlan);
+    const {plan, feedbacks} = await reflectPlanWithFeedback(userCommand, originalPlan);
     const requestFeedback: boolean = originalPlan.action !== plan.action;
 
     history.push({ role: "model", parts: [{ text: JSON.stringify(plan) }] });
@@ -83,7 +82,7 @@ export async function POST(request: NextRequest) {
         },
       ],
     });
-    const result = await runWithFunctionCalling(userCommand, history, plan);
+    const result = await runWithFunctionCalling(userCommand, history, plan, feedbacks);
     console.log("the result is: " + result);
     return NextResponse.json({
       ok: true,

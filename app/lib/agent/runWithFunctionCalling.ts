@@ -1,4 +1,5 @@
 import {
+  FeedbackEntry,
   HandlerArg,
   toolHandlers,
   ToolName,
@@ -12,10 +13,9 @@ import { toolDeclarations } from "../tools/tools";
 export async function runWithFunctionCalling(
   userInput: string,
   history: Content[],
-  plan: ToolPlan
+  plan: ToolPlan,
+  feedbacks: FeedbackEntry[]
 ): Promise<string> {
-  //const plan: ToolPlan = await planToolCallWithReasoning(userInput, history);
-
   switch (plan.action) {
     case "clarify":
       return `I need more information: ${plan.missingInfo}\n\nReason: ${plan.reasoning}`;
@@ -63,7 +63,9 @@ export async function runWithFunctionCalling(
             history[0]
           } and you have found these results ${JSON.stringify(
             data
-          )}. Now, respond to the user's query in a professional and friendly tone, like an assistant. 
+          )}. This was the feedback from silmilar results: You were given this propmt: ${JSON.stringify(
+            feedbacks
+          )}  Now, respond to the user's query in a professional and friendly tone, like an assistant. 
           Focus only on the meaningful, user-relevant information. 
           Summarize clearly if needed, without omitting important facts. 
           Do NOT include any sensitive data, such as internal IDs, email addresses, system labels, or metadata unless it is directly relevant and necessary for understanding the user's question. 

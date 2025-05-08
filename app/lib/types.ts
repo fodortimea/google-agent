@@ -32,7 +32,13 @@ type FunctionCallPlan = {
   params: ToolArgs[ToolName];
   reasoning: string;
 };
-
+export type FeedbackEntry = {
+  action: string;
+  rating: number;
+  comment: string;
+  summary: string;
+  similarity: number;
+};
 export type ToolPlan = ClarifyPlan | SearchPlan | FunctionCallPlan;
 
 export const toolHandlers = {
@@ -98,54 +104,47 @@ export const TOOL_NAMES: string[] = Object.keys(toolHandlers);
 
 export const ACTION_ENUM = [...TOOL_NAMES, "searchInternet", "clarify"];
 
-export const planSchema: Schema=  {
-    type: Type.OBJECT,
-    properties: {
-      action: {
+export const planSchema: Schema = {
+  type: Type.OBJECT,
+  properties: {
+    action: {
+      type: Type.STRING,
+      enum: ACTION_ENUM,
+      description: "what action should be taken from the toolset",
+      nullable: false,
+    },
+    params: {
+      type: Type.ARRAY,
+      items: {
         type: Type.STRING,
-        enum: ACTION_ENUM,
-        description: "what action should be taken from the toolset",
-        nullable: false,
       },
-      params: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.STRING,
-        },
-        description:
-          "What parameters are needed in order to take the action",
-        nullable: true,
-      },
-      query: {
-        type: Type.STRING,
-        description:
-          "What you should search for on the internet in order to make the data complete",
-        nullable: true,
-      },
-      missingInfo: {
-        type: Type.STRING,
-        description:
-          "What other information do you need from the user in order to carry out the action",
-        nullable: true,
-      },
-
-      reasoning: {
-        type: Type.STRING,
-        description: "What is the reasoning behind your decision?",
-        nullable: false,
-      },
+      description: "What parameters are needed in order to take the action",
+      nullable: true,
+    },
+    query: {
+      type: Type.STRING,
+      description:
+        "What you should search for on the internet in order to make the data complete",
+      nullable: true,
+    },
+    missingInfo: {
+      type: Type.STRING,
+      description:
+        "What other information do you need from the user in order to carry out the action",
+      nullable: true,
     },
 
-    required: ["action", "reasoning"],
-    propertyOrdering: [
-      "action",
-      "params",
-      "query",
-      "missingInfo",
-      "reasoning",
-    ],
-  };
+    reasoning: {
+      type: Type.STRING,
+      description: "What is the reasoning behind your decision?",
+      nullable: false,
+    },
+  },
 
-  export function isFunctionCallPlan(plan: ToolPlan): plan is FunctionCallPlan {
-    return plan.action !== 'clarify' && plan.action !== 'searchInternet';
-  }
+  required: ["action", "reasoning"],
+  propertyOrdering: ["action", "params", "query", "missingInfo", "reasoning"],
+};
+
+export function isFunctionCallPlan(plan: ToolPlan): plan is FunctionCallPlan {
+  return plan.action !== "clarify" && plan.action !== "searchInternet";
+}
