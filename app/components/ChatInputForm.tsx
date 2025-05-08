@@ -1,5 +1,7 @@
 import { FeedbackButton } from "./FeedbackButton";
 import FilePreview from "./FilePreview";
+import { RecordButton } from "./RecordButton";
+import { SendButton } from "./SendButton";
 
 type Props = {
   message: string;
@@ -36,52 +38,44 @@ const ChatInputForm = ({
   handleFeedbackOpened,
   showFeedbackReminder,
 }: Props) => (
-  <form
-    onSubmit={handleSubmit}
-    className="w-full max-w-3xl bg-white rounded shadow p-4"
-  >
+  <form onSubmit={handleSubmit} className="w-full max-w-3xl">
     <div
-      className="relative w-full border rounded p-4 mb-2 bg-gray-50 h-32 flex flex-wrap gap-2"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
+      className="relative border rounded-2xl shadow-md bg-white p-4 mb-4 max-h-40 overflow-y-auto"
     >
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Type your message or drop files here..."
-        className="flex-1 h-full bg-transparent border-none resize-none focus:outline-none"
+        className="w-full resize-none bg-transparent border-none focus:outline-none max-h-32 overflow-y-auto"
       />
-      <FilePreview files={images} onRemove={handleRemoveImage} />
-      <FilePreview files={audio} onRemove={handleRemoveAudio} />
+
+      <div className="mt-2 flex gap-2 flex-wrap">
+        <FilePreview files={images} onRemove={handleRemoveImage} />
+        <FilePreview files={audio} onRemove={handleRemoveAudio} />
+      </div>
+
+      <div className="absolute bottom-3 right-3 flex gap-2">
+        {/* Record button */}
+        <RecordButton
+          isRecording={isRecording}
+          onClick={isRecording ? handleStopRecording : startRecording}
+        />
+        <SendButton />
+        <FeedbackButton
+          interactionId={currentSavedDecisionId}
+          onOpen={handleFeedbackOpened}
+        />
+      </div>
     </div>
 
-    <div className="flex gap-4 items-center">
-      <button
-        type="button"
-        onClick={isRecording ? handleStopRecording : startRecording}
-        className={`py-2 px-4 rounded ${
-          isRecording ? "bg-red-500" : "bg-green-500"
-        } text-white`}
-      >
-        {isRecording ? "Stop Recording" : "Start Recording"}
-      </button>
-      <button
-        type="submit"
-        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-      >
-        Send
-      </button>
-      <FeedbackButton
-        interactionId={currentSavedDecisionId}
-        onOpen={handleFeedbackOpened}
-      />
-      {showFeedbackReminder && currentSavedDecisionId && (
-        <div className="mt-2 text-xs text-gray-600 italic animate-pulse">
-          💬 The model is not sure of the answer being what you wanted. Please
-          give feedback.
-        </div>
-      )}
-    </div>
+    {/* Feedback reminder message */}
+    {showFeedbackReminder && currentSavedDecisionId && (
+      <div className="mt-1 text-xs text-gray-500 italic animate-pulse">
+        💬 The model isn’t confident about the response. Please leave feedback.
+      </div>
+    )}
   </form>
 );
 

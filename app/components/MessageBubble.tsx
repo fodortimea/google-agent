@@ -7,46 +7,52 @@ const MessageBubble = ({
 }: {
   role: string | undefined;
   parts: Part[] | undefined;
-}) => (
-  <div
-    className={`flex mb-4 ${role === "user" ? "justify-end" : "justify-start"}`}
-  >
-    <div
-      className={`p-4 rounded-lg max-w-xs shadow ${
-        role === "user" ? "bg-blue-500 text-white" : "bg-gray-200"
-      }`}
-    >
-      {parts?.map((part, i) => (
-        <div key={i}>
-          {part.text && <p>{part.text}</p>}
+}) => {
+  const isUser = role === "user";
 
-          {part.inlineData?.mimeType?.startsWith("image/") && (
-            <div className="mb-2 rounded overflow-hidden max-w-full">
-              <Image
-                src={`data:${part.inlineData.mimeType};base64,${part.inlineData.data}`}
-                alt="Uploaded"
-                width={300}
-                height={300}
-                className="rounded"
-              />
-            </div>
-          )}
+  return (
+    <div className={`flex mb-4 ${isUser ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`relative max-w-[75%] px-4 py-3 rounded-2xl shadow-md
+          ${
+            isUser
+              ? "bg-message text-white rounded-br-none"
+              : "bg-white text-primary border border-accent rounded-bl-none"
+          }
+        `}
+      >
+        {parts?.map((part, i) => (
+          <div key={i} className="mb-1 last:mb-0 break-words">
+            {part.text && <p className="whitespace-pre-wrap">{part.text}</p>}
 
-          {part.inlineData?.mimeType?.startsWith("audio/") && (
-            <div className="mb-2 min-w-[200px]">
-              <audio
-                controls
-                src={`data:${part.inlineData.mimeType};base64,${part.inlineData.data}`}
-                className="w-full"
-              >
-                Your browser does not support the audio element.
-              </audio>
-            </div>
-          )}
-        </div>
-      ))}
+            {part.inlineData?.mimeType?.startsWith("image/") && (
+              <div className="my-2 rounded overflow-hidden max-w-full">
+                <Image
+                  src={`data:${part.inlineData.mimeType};base64,${part.inlineData.data}`}
+                  alt="Uploaded"
+                  width={300}
+                  height={300}
+                  className="rounded-xl"
+                />
+              </div>
+            )}
+
+            {part.inlineData?.mimeType?.startsWith("audio/") && (
+              <div className="my-2 min-w-[200px]">
+                <audio
+                  controls
+                  src={`data:${part.inlineData.mimeType};base64,${part.inlineData.data}`}
+                  className="w-full"
+                >
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default MessageBubble;
