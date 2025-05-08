@@ -149,13 +149,13 @@ export function FeedbackButton({
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Please write your feedback here..."
                 rows={3}
-                className="w-full resize-none bg-transparent border border-[#D7E0FF] rounded-2xl py-3 px-4 pr-12 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-primary max-h-32 overflow-y-auto"
+                className="w-full resize-none bg-transparent border border-[#D7E0FF] rounded-2xl py-3 px-4 pr-12 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-primary max-h-32 overflow-y-auto text-primary dark:text-dark-primary"
               />
 
               <button
                 onClick={submit}
                 disabled={!rating}
-                className="absolute top-2/3 right-3 -translate-y-[45%] text-primary hover:text-blue-700"
+                className="absolute top-2/3 right-3 -translate-y-[45%] text-primary dark:text-dark-primary hover:text-blue-700"
               >
                 <SendIcon size={20} />
               </button>

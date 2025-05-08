@@ -25,33 +25,34 @@ export default function Home() {
   } = useChatAgent();
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-4 bg-gray-100">
-      <div
-        className="flex-1 w-full max-w-3xl bg-white rounded shadow p-4 mb-4 overflow-auto"
-        style={{ maxHeight: "70vh" }}
-      >
-        {chatMessages.map((msg, index) => (
-          <MessageBubble key={index} role={msg.role} parts={msg.parts} />
-        ))}
-      </div>
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <div className="flex flex-col flex-1 items-center w-full px-4">
+        <div className="flex flex-col flex-1 w-full max-w-3xl">
+          <div className="flex-1 overflow-y-auto border rounded-2xl shadow-md bg-white p-4 mb-4">
+            {chatMessages.map((msg, index) => (
+              <MessageBubble key={index} role={msg.role} parts={msg.parts} />
+            ))}
+          </div>
 
-      <ChatInputForm
-        message={message}
-        setMessage={setMessage}
-        handleSubmit={handleSubmit}
-        handleDragOver={handleDragOver}
-        handleDrop={handleDrop}
-        images={images}
-        audio={audio}
-        handleRemoveImage={handleRemoveImage}
-        handleRemoveAudio={handleRemoveAudio}
-        isRecording={isRecording}
-        startRecording={startRecording}
-        handleStopRecording={handleStopRecording}
-        currentSavedDecisionId={currentSavedDecisionId}
-        handleFeedbackOpened={handleFeedbackOpened}
-        showFeedbackReminder={showFeedbackReminder}
-      />
+          <ChatInputForm
+            message={message}
+            setMessage={setMessage}
+            handleSubmit={handleSubmit}
+            handleDragOver={handleDragOver}
+            handleDrop={handleDrop}
+            images={images}
+            audio={audio}
+            handleRemoveImage={handleRemoveImage}
+            handleRemoveAudio={handleRemoveAudio}
+            isRecording={isRecording}
+            startRecording={startRecording}
+            handleStopRecording={handleStopRecording}
+            currentSavedDecisionId={currentSavedDecisionId}
+            handleFeedbackOpened={handleFeedbackOpened}
+            showFeedbackReminder={showFeedbackReminder}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -9,7 +9,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        //primary: "#4147D5",
         primary: "#766CA8", // dark blue
         message: "#8E83A5", // light blue
         accent: "#C2B8DA",

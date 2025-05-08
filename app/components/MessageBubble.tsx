@@ -16,8 +16,8 @@ const MessageBubble = ({
         className={`relative max-w-[75%] px-4 py-3 rounded-2xl shadow-md
           ${
             isUser
-              ? "bg-message text-white rounded-br-none"
-              : "bg-white text-primary border border-accent rounded-bl-none"
+              ? "bg-white text-primary dark:text-dark-primary border border-accent rounded-bl-none"
+              : "bg-message text-white rounded-br-none"
           }
         `}
       >

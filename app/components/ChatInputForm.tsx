@@ -54,7 +54,7 @@ const ChatInputForm = ({
           }
         }}
         placeholder="Type your message or drop images here..."
-        className="w-full resize-none bg-transparent border-none focus:outline-none max-h-32 overflow-y-auto text-primary"
+        className="w-full resize-none bg-transparent border-none focus:outline-none max-h-32 overflow-y-auto text-primary dark:text-dark-primary"
       />
 
       <div className="mt-2 flex gap-2 flex-wrap">
