@@ -7,10 +7,10 @@ import { SendIcon } from "./SendIcon";
 export function FeedbackButton({
   interactionId,
   onOpen,
-}: {
+}: Readonly<{
   interactionId: number | null;
   onOpen?: () => void;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);

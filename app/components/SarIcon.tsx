@@ -1,6 +1,6 @@
 // components/icons/StarIcon.tsx
 type StarIconProps = {
-  filled?: boolean;
+  readonly filled?: boolean;
 };
 
 export function StarIcon({ filled = false }: StarIconProps) {

@@ -5,9 +5,9 @@ import React, { useEffect } from "react";
 
 export function ClientSessionProvider({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <SessionProvider>
       <SessionWatcher />

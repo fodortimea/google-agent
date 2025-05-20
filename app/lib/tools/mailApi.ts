@@ -27,8 +27,8 @@ export const fetchEmailDetails = async (messageId: string) => {
 
     const headers = emailData.data.payload?.headers || [];
     const subject =
-      headers.find((h) => h.name === "Subject")?.value || "No Subject";
-    const from = headers.find((h) => h.name === "From")?.value || "Unknown";
+      headers.find((h) => h.name === "Subject")?.value ?? "No Subject";
+    const from = headers.find((h) => h.name === "From")?.value ?? "Unknown";
 
     // Extract email body
     let body = "No Content";
@@ -141,7 +141,7 @@ export const findMatchingContact = (
           return null;
         }
       }
-      return lastNameMatch.emailAddresses?.[0]?.value || null;
+      return lastNameMatch.emailAddresses?.[0]?.value ?? null;
     }
   }
 
@@ -155,7 +155,7 @@ export const findMatchingContact = (
     );
 
     if (firstNameMatch) {
-      return firstNameMatch.emailAddresses?.[0]?.value || null;
+      return firstNameMatch.emailAddresses?.[0]?.value ?? null;
     }
   }
 
@@ -167,7 +167,7 @@ export const findMatchingContact = (
   );
 
   if (anyMatch) {
-    return anyMatch.emailAddresses?.[0]?.value || null;
+    return anyMatch.emailAddresses?.[0]?.value ?? null;
   }
 
   return null;

@@ -537,7 +537,7 @@ export const createEvent = async (
       calendarId: "primary", // Change to specific calendar if needed
       requestBody: {
         summary: title,
-        description: description || "",
+        description: description ?? "",
         start: {
           dateTime: new Date(startDate).toISOString(),
         },

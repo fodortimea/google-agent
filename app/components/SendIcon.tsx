@@ -1,6 +1,6 @@
 // components/icons/SendIcon.tsx
 type SendIconProps = {
-  size?: number;
+  readonly size?: number;
 };
 
 export function SendIcon({ size = 24 }: SendIconProps) {

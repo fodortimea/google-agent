@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData();
-    //todo summarize history if there are more than 5 interactions?
     const history: Content[] = JSON.parse(
       (formData.get("messages") as string) || "[]"
     );

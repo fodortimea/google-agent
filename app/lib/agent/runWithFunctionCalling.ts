@@ -55,13 +55,16 @@ export async function runWithFunctionCalling(
         const args = fn.args as HandlerArg<typeof name>;
         const data = await executeTool(name, args);
         console.log(
-          "the data returned by function call: " + fn + "is: " + data
+          "the data returned by function call: " +
+            JSON.stringify(fn) +
+            "is: " +
+            JSON.stringify(data)
         );
         const finalResponse = await genAI.models.generateContent({
           model: "gemini-2.0-flash",
-          contents: `You were given this propmt: ${
+          contents: `You were given this propmt: ${JSON.stringify(
             history[0]
-          } and you have found these results ${JSON.stringify(
+          )} and you have found these results ${JSON.stringify(
             data
           )}. This was the feedback from silmilar results: You were given this propmt: ${JSON.stringify(
             feedbacks
