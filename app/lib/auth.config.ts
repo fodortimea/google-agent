@@ -20,6 +20,7 @@ export const authOptions: NextAuthOptions = {
             "https://www.googleapis.com/auth/gmail.modify",
             "https://www.googleapis.com/auth/gmail.send",
             "https://www.googleapis.com/auth/calendar",
+            "https://www.googleapis.com/auth/contacts.readonly",
           ].join(" "),
         },
       },
@@ -67,6 +68,13 @@ export const authOptions: NextAuthOptions = {
 
 // Function to refresh access token using refresh token
 async function refreshAccessToken(token: JWT) {
+  if (!token.refreshToken) {
+    console.warn("⚠️ No refresh token available");
+    return {
+      ...token,
+      error: "NoRefreshToken",
+    };
+  }
   try {
     const res = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",

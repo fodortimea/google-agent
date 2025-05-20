@@ -96,6 +96,10 @@ export const findMatchingContact = (
   contacts: people_v1.Schema$Person[],
   normalizedSearch: string
 ): string | null => {
+  if (normalizedSearch.includes("@")) {
+    return normalizedSearch;
+  }
+
   const nameParts = normalizedSearch.split(/\s+/); // Split by spaces
 
   let firstName = "";
