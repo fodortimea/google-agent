@@ -15,6 +15,22 @@ import {
   sendEmail,
 } from "./tools/tools";
 
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+    error?: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken?: string;
+    refreshToken?: string;
+    accessTokenExpires?: number;
+    error?: string;
+  }
+}
+
 type ClarifyPlan = {
   action: "clarify";
   missingInfo: string;

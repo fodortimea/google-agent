@@ -7,7 +7,17 @@ export function AuthButton() {
 
   if (!session) {
     return (
-      <button onClick={() => signIn("google", { callbackUrl: "/" })}>
+      <button
+        onClick={() =>
+          signIn("google", {
+            callbackUrl: "/",
+            prompt: "consent",
+            access_type: "offline",
+            scope:
+              "openid email profile https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+          })
+        }
+      >
         Sign in with Google
       </button>
     );
