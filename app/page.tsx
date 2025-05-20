@@ -25,7 +25,7 @@ export default function Home() {
   } = useChatAgent();
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col h-screen bg-gray-100 overflow-hidden">
       <div className="flex flex-col flex-1 items-center w-full px-4">
         <div className="flex flex-col flex-1 w-full max-w-3xl">
           <div className="flex-1 overflow-y-auto border rounded-2xl shadow-md bg-white p-4 mb-4">
