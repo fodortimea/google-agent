@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { Content, Part } from "@google/genai";
 
@@ -12,20 +12,22 @@ import { Content, Part } from "@google/genai";
  */
 export function useChatAgent() {
   const [message, setMessage] = useState("");
-  const [chatMessages, setChatMessages] = useState<Content[]>([
-    { role: "model", parts: [{ text: "Hi. How can I help?" }] },
-  ]);
+  const initialContent: Content = {
+    role: "model",
+    parts: [{ text: "Hi. How can I help?" }],
+  };
+  const [chatMessages, setChatMessages] = useState<Content[]>([initialContent]);
   const [images, setImages] = useState<{ id: string; file: File }[]>([]);
   const [audio, setAudio] = useState<{ id: string; file: File }[]>([]);
   const [showFeedbackReminder, setShowFeedbackReminder] = useState(false);
   const [currentSavedDecisionId, setCurrentSavedDecisionId] = useState<
     number | null
   >(null);
+  const latestAudioRef = useRef<{ id: string; file: File } | null>(null);
 
   const audioRecorder = useAudioRecorder();
   const {
     isRecording,
-    audioFiles,
     startRecording,
     recordedAudio,
     setRecordedAudio,
@@ -48,8 +50,10 @@ export function useChatAgent() {
       e?.preventDefault();
       const hasText = message.trim().length > 0;
       const hasImages = images.length > 0;
-      const hasAudio = audio.length > 0;
-      if ((!hasText && hasImages) || (!hasText && !hasImages && !hasAudio)) {
+      if (
+        (!hasText && hasImages) ||
+        (!hasText && !hasImages && !latestAudioRef.current)
+      ) {
         console.warn(
           "Invalid submission: Images need text, or nothing to send."
         );
@@ -72,43 +76,45 @@ export function useChatAgent() {
         );
         parts.push(...imageParts);
       }
-      if (hasAudio) {
-        const audioParts = await Promise.all(
-          audio.map(
-            async (aud) =>
-              ({
-                inlineData: {
-                  data: await convertBlobToBase64(aud.file),
-                  mimeType: aud.file.type || "audio/mp3",
-                },
-              } as Part)
-          )
-        );
-        parts.push(...audioParts);
+      if (latestAudioRef.current) {
+        const aud = latestAudioRef.current;
+        const audioPart: Part = {
+          inlineData: {
+            data: await convertBlobToBase64(aud.file),
+            mimeType: aud.file.type || "audio/mp3",
+          },
+        };
+        parts.push(audioPart);
       }
       const userMessage: Content = { role: "user", parts };
       setCurrentSavedDecisionId(null);
       const formData = new FormData();
-      formData.append("messages", JSON.stringify(chatMessages.slice(1)));
+      const newHistory: string = sessionStorage.getItem("chatMessages") || "[]";
       formData.append("message", JSON.stringify(userMessage));
+      formData.append("history", newHistory);
+
       setChatMessages((prev) => [...prev, userMessage]);
       setMessage("");
       setImages([]);
       setAudio([]);
       try {
+        console.log("Entering route");
         const response = await fetch("/api/agent", {
           method: "POST",
           body: formData,
         });
+        console.log("Response.ok is:", response.ok);
         if (!response.ok)
           throw new Error("Failed to communicate with the server");
         const data = await response.json();
+        console.log("data is:", JSON.stringify(data));
         setCurrentSavedDecisionId(data.interactionId);
         setShowFeedbackReminder(data.requestFeedback);
-        setChatMessages((prev) => [
-          ...prev,
-          { role: "model", parts: [{ text: data.result }] },
-        ]);
+        setChatMessages((prev) => [...prev, data.result as Content]);
+        sessionStorage.setItem(
+          "chatMessages",
+          JSON.stringify(data.sessionHistory)
+        );
       } catch (err) {
         console.error("Error:", err);
       }
@@ -116,13 +122,20 @@ export function useChatAgent() {
     [message, images, audio, chatMessages]
   );
 
-  // Sync latest recorded audio
   useEffect(() => {
     if (recordedAudio) {
-      setAudio([recordedAudio]);
-      setRecordedAudio(null);
+      const newAudio = { id: generateUniqueId(), file: recordedAudio.file };
+      latestAudioRef.current = newAudio;
+      setAudio([newAudio]); // For UI
+      setRecordedAudio(null); // Reset state
     }
   }, [recordedAudio, setRecordedAudio]);
+
+  useEffect(() => {
+    // Initialize chat messages from session storage on every reload.
+    const initial = JSON.stringify([initialContent]);
+    sessionStorage.setItem("chatMessages", initial);
+  }, []);
 
   // Drag & drop handlers
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
@@ -147,11 +160,6 @@ export function useChatAgent() {
     setAudio((prev) => prev.filter((a) => a.id !== id));
   const handleStopRecording = async () => {
     stopRecording();
-    await new Promise((r) => setTimeout(r, 100));
-    if (audioFiles.length > 0) {
-      const last = audioFiles[audioFiles.length - 1];
-      setRecordedAudio({ id: generateUniqueId(), file: last.file });
-    }
   };
 
   return {

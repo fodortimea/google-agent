@@ -21,8 +21,10 @@ You must choose one of the following:
 
 Available tools:
 ${toolList}
-The conversation so far: 
+User input to respond to:
 "${userInput}"
+
+Base your decision *only* on the most recent user input, unless previous context is clearly related. Ignore old conversation turns unless they are explicitly relevant.
 
 Reply in valid JSON.
 

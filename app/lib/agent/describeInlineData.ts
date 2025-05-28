@@ -5,7 +5,7 @@ import { genAI } from "../llm/client";
 export async function describeInlineData(
   parts: Part[] | undefined
 ): Promise<string> {
-  // 1️⃣ If no inlineData, just return the text
+  // If no inlineData, just return the text
   if (!parts) {
     return "";
   }
@@ -14,7 +14,7 @@ export async function describeInlineData(
     return first.text.trim();
   }
 
-  // 2️⃣ List all the multimodal parts
+  // List all the multimodal parts
   const inlineParts = parts.filter((p) => p.inlineData);
   const list = inlineParts
     .map((p, i) => {
@@ -25,19 +25,19 @@ export async function describeInlineData(
     })
     .join("\n");
 
-  // 3️⃣ Build the description prompt
+  // Build the description prompt
   const prompt = `
 I received the following multimedia inputs:
 ${list}
 
-Please describe each one in detail:
-- For images: what you “see” (objects, colors, text, scene).
-- For audio: what you “hear” (speech content, music, ambient sounds).
+Please follow for each one:
+- For images: describe in detail what you “see” (objects, colors, text, scene).
+- For audio: write down exactly what you “hear” - just the speech content. Music or ambient sounds should be described only if it has revelance to the user's request.
 
 Respond with one description per part, prefixed by “Part 1:”, “Part 2:”, etc.
   `.trim();
 
-  // 4️⃣ Send the prompt + the raw inlineData parts to Gemini
+  // Send the prompt + the raw inlineData parts to Gemini
   const content: Content = {
     role: "user",
     parts: [
@@ -52,6 +52,6 @@ Respond with one description per part, prefixed by “Part 1:”, “Part 2:”,
     config: { temperature: 0.2 },
   });
 
-  // 5️⃣ Return the LLM’s description (or empty string)
+  //  Return the LLM’s description (or empty string)
   return response.text ?? "";
 }

@@ -11,7 +11,6 @@ import { Content } from "@google/genai";
 import { toolDeclarations } from "../tools/tools";
 
 export async function runWithFunctionCalling(
-  userInput: string,
   history: Content[],
   plan: ToolPlan,
   feedbacks: FeedbackEntry[]

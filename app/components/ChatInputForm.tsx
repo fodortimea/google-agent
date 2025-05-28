@@ -42,7 +42,7 @@ const ChatInputForm = ({
     <div
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="relative border rounded-2xl shadow-md bg-white p-4 mb-4 max-h-40 overflow-y-auto"
+      className="relative border rounded-2xl shadow-md bg-white p-4 max-h-60 overflow-y-auto"
     >
       <textarea
         value={message}
@@ -62,8 +62,7 @@ const ChatInputForm = ({
         <FilePreview files={audio} onRemove={handleRemoveAudio} />
       </div>
 
-      <div className="absolute bottom-3 right-3 flex gap-2">
-        {/* Record button */}
+      <div className="mt-3 flex justify-end gap-2">
         <RecordButton
           isRecording={isRecording}
           onClick={isRecording ? handleStopRecording : startRecording}
@@ -76,7 +75,6 @@ const ChatInputForm = ({
       </div>
     </div>
 
-    {/* Feedback reminder message */}
     {showFeedbackReminder && currentSavedDecisionId && (
       <div className="mt-1 text-xs text-gray-500 italic animate-pulse">
         💬 The model isn’t confident about the response. Please leave feedback.

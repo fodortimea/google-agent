@@ -11,7 +11,7 @@ const ai = new GoogleGenAI({ apiKey });
 /** Returns a raw float array you can store in pgvector */
 export async function embed(text: string): Promise<number[] | undefined> {
   const result = await ai.models.embedContent({
-    model: "gemini-embedding-exp-03-07",
+    model: "models/text-embedding-004",
     contents: text,
   });
   return result.embeddings?.[0]?.values;

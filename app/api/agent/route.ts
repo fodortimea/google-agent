@@ -4,9 +4,10 @@ import { planToolCallWithReasoning } from "@/app/lib/agent/planToolCallWithReaso
 import { embed } from "@/app/lib/llm/embedding";
 import { supabase } from "@/app/lib/db/supabaseClient";
 import { runWithFunctionCalling } from "@/app/lib/agent/runWithFunctionCalling";
-import { Content } from "@google/genai";
+import { Content, Part } from "@google/genai";
 import { reflectPlanWithFeedback } from "@/app/lib/agent/evaluatePlanWithFeedback";
 import { describeInlineData } from "@/app/lib/agent/describeInlineData";
+import { convertTextToAudio } from "@/app/lib/llm/tts/convertTextToAudio";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,23 +21,26 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData();
-    const history: Content[] = JSON.parse(
-      (formData.get("messages") as string) || "[]"
-    );
     const lastUserMessage: Content = JSON.parse(
       (formData.get("message") as string) || "{}"
     );
     const userCommand = await describeInlineData(lastUserMessage.parts);
-
-    history.push({
+    const sessionHistory: Content[] = JSON.parse(
+      formData.get("history") as string
+    );
+    const history: Content[] = [...sessionHistory];
+    const userContent = {
       role: "user",
-      parts: [{ text: JSON.stringify(userCommand) }],
-    });
-
-    history.push(lastUserMessage);
+      parts: [{ text: userCommand }],
+    } as Content;
+    history.push(userContent);
+    sessionHistory.push(userContent);
     // 1. let the model plan
     const originalPlan = await planToolCallWithReasoning(userCommand, history);
-    const {plan, feedbacks} = await reflectPlanWithFeedback(userCommand, originalPlan);
+    const { plan, feedbacks } = await reflectPlanWithFeedback(
+      userCommand,
+      originalPlan
+    );
     const requestFeedback: boolean = originalPlan.action !== plan.action;
 
     history.push({ role: "model", parts: [{ text: JSON.stringify(plan) }] });
@@ -81,13 +85,51 @@ export async function POST(request: NextRequest) {
         },
       ],
     });
-    const result = await runWithFunctionCalling(userCommand, history, plan, feedbacks);
+    const result = await runWithFunctionCalling(history, plan, feedbacks);
+    const responseChat = { role: "model", parts: [{ text: result }] };
+    sessionHistory.push(responseChat);
+    const audioMode =
+      lastUserMessage?.parts?.some((part) =>
+        part.inlineData?.mimeType?.startsWith("audio/")
+      ) || false;
+    if (audioMode) {
+      // If the user sent an audio message, we need to convert the result to audio
+      const audioBase64 = await convertTextToAudio(result);
+      if (!audioBase64) {
+        return NextResponse.json({
+          ok: false,
+          error: "Failed to convert text to audio",
+        });
+      }
+
+      return NextResponse.json({
+        ok: true,
+        result: {
+          role: "model",
+          parts: [
+            {
+              inlineData: {
+                mimeType: "audio/wav",
+                data: audioBase64.toString("base64"),
+              },
+            } as Part,
+          ],
+        },
+        interactionId,
+        requestFeedback,
+        sessionHistory,
+      });
+    }
     console.log("the result is: " + result);
     return NextResponse.json({
       ok: true,
-      result,
+      result: {
+        role: "model",
+        parts: [{ text: result }],
+      },
       interactionId,
       requestFeedback,
+      sessionHistory,
     });
   } catch (error) {
     console.error("Error processing request:", error);
